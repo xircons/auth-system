@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (username && password) {
       setError('');
+      setShowError(false);
       onLogin(username);
     } else {
       setError('Please enter both username and password.');
+      setShowError(true);
     }
   };
+
+  useEffect(() => {
+    if (showError) {
+      const timer = setTimeout(() => {
+        setShowError(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showError]);
 
   return (
     <div className="login-page">
@@ -54,7 +66,7 @@ function Login({ onLogin }) {
             <div className="forgot-password">
               <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
             </div>
-            {error && <div className="error-message">{error}</div>}
+            {showError && <div className="error-message slide-out">{error}</div>}
             <button type="submit">Sign In</button>
           </form>
           <div className="divider">

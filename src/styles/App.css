@@ -118,7 +118,6 @@ body {
   font-size: 1.25rem;
   background: rgba(166, 166, 166, 0.1);
   padding: 12px;
-  border-radius: 4px;
   width: 48px;
   height: 48px;
   display: flex;
@@ -300,20 +299,52 @@ body {
 }
 
 .error-message {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
   background: #262626;
   color: #FAFAFA;
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 16px 20px;
   font-size: 14px;
   border: 1px solid #D9D9D9;
   text-align: center;
+  z-index: 1000;
+  width: fit-content;
+  min-width: 200px;
+  max-width: 400px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.error-message.slide-out {
+  animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 4.7s forwards;
 }
 
 /* Dashboard Container */
 .dashboard-container {
   background: #262626;
   padding: 40px;
-  border-radius: 8px;
   text-align: center;
   width: 100%;
   max-width: 500px;
@@ -334,7 +365,6 @@ body {
   padding: 12px 24px;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
