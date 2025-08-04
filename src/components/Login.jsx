@@ -6,17 +6,77 @@ function Login({ onLogin, onSwitchToRegister }) {
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  // Demo correct password
+  // const CORRECT_PASSWORD = 'password123';
+
+  // Validation functions
+  const validateEmail = (email) => {
+    if (!email) {
+      return 'Please enter email';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Please enter a valid email format';
+    }
+    return '';
+  };
+
+  const validatePassword = (password) => {
+    if (!password) {
+      return 'Please enter password';
+    }
+    return '';
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    if (submitted) setEmailError(validateEmail(value));
+    else setEmailError('');
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (submitted && !value) {
+      setPasswordError('Please enter password');
+    } else if (submitted) {
+      setPasswordError('');
+    } else {
+      setPasswordError('');
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (username && password) {
+    setSubmitted(true);
+    const emailValidation = validateEmail(username);
+    let passwordValidation = validatePassword(password);
+    
+    if (password && password !== CORRECT_PASSWORD) {
+      passwordValidation = 'The password you entered is incorrect';
+    }
+    
+    setEmailError(emailValidation);
+    setPasswordError(passwordValidation);
+
+    if (!username && !password) {
+      setError('Both email and password are required');
+      setShowError(true);
+      return;
+    } else {
       setError('');
       setShowError(false);
-      onLogin(username);
-    } else {
-      setError('Please enter both username and password.');
-      setShowError(true);
     }
+
+    if (emailValidation || passwordValidation) {
+      return;
+    }
+
+    onLogin(username);
   };
 
   useEffect(() => {
@@ -44,7 +104,6 @@ function Login({ onLogin, onSwitchToRegister }) {
         </p>
         <div className="designer-credit">Design by <a href="https://github.com/xircons" target="_blank" rel="noopener noreferrer">xircons</a></div>
       </div>
-      
       <div className="section-right">
         <div className="login-form-container">
           <form onSubmit={handleSubmit}>
@@ -52,24 +111,32 @@ function Login({ onLogin, onSwitchToRegister }) {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleEmailChange}
                 placeholder="Email Address *"
+                className={submitted && emailError ? 'error' : ''}
               />
+              {submitted && emailError && <div className="field-error">{emailError}</div>}
             </div>
-            <div className="form-group password-group">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password *"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                <i className={`far ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
-              </button>
+            <div className="form-group password-group" style={{marginBottom: submitted && passwordError ? 0 : undefined}}>
+              <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  placeholder="Password *"
+                  className={submitted && passwordError ? 'error' : ''}
+                  style={{flex: 1}}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  <i className={`far ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                </button>
+              </div>
+              {submitted && passwordError && <div className="field-error">{passwordError}</div>}
             </div>
             <div className="forgot-password">
               <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
@@ -96,7 +163,6 @@ function Login({ onLogin, onSwitchToRegister }) {
               </svg>
               GitHub
             </button>
-
           </div>
           <div className="subscribe-link">
             <a href="#" onClick={(e) => {
