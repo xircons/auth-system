@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-function Login({ onLogin }) {
+function Login({ onLogin, onSwitchToRegister }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,13 +56,20 @@ function Login({ onLogin }) {
                 placeholder="Email Address *"
               />
             </div>
-            <div className="form-group">
+            <div className="form-group password-group">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password *"
               />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i className={`far ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+              </button>
             </div>
             <div className="forgot-password">
               <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
@@ -91,7 +99,10 @@ function Login({ onLogin }) {
 
           </div>
           <div className="subscribe-link">
-            <a href="#" onClick={(e) => e.preventDefault()}>Not subscribed with us yet? <span className="underline">Subscribe</span></a>
+            <a href="#" onClick={(e) => {
+              e.preventDefault();
+              onSwitchToRegister();
+            }}>Not subscribed with us yet? Subscribe</a>
           </div>
         </div>
       </div>
