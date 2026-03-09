@@ -37,9 +37,22 @@ app.post('/api/login', (req, res) => {
 
 const isMain = process.argv[1] === __filename;
 if (isMain) {
-  app.listen(PORT, () => {
-    console.log(`Auth API running at http://localhost:${PORT}`);
-  });
+  const tryListen = (port) => {
+    const server = app.listen(port, () => {
+      console.log(`Auth API running at http://localhost:${server.address().port}`);
+      if (server.address().port !== 3001) {
+        console.log('  (3001 was in use — set VITE_API_URL=http://localhost:' + server.address().port + ' and restart the frontend if needed)');
+      }
+    });
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE' && port < 3010) {
+        tryListen(port + 1);
+      } else {
+        throw err;
+      }
+    });
+  };
+  tryListen(Number(PORT) || 3001);
 }
 
 export { app };

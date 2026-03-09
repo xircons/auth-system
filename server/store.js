@@ -38,22 +38,27 @@ export function readUsers(filePath = getUsersPath()) {
 
 /**
  * Append one user. Returns true if appended, false if email already exists.
+ * Email is stored and compared in lowercase so Wuttikan@gmail.com and wuttikan@gmail.com are the same.
  */
 export function addUser(user, filePath = getUsersPath()) {
   const users = readUsers(filePath);
-  if (users.some((u) => u.email === user.email)) {
+  const emailLower = (user.email || '').toLowerCase();
+  if (users.some((u) => (u.email || '').toLowerCase() === emailLower)) {
     return false;
   }
   ensureDataDir(filePath);
-  const line = JSON.stringify(user) + '\n';
+  const userToStore = { ...user, email: emailLower };
+  const line = JSON.stringify(userToStore) + '\n';
   fs.appendFileSync(filePath, line);
   return true;
 }
 
 /**
  * Find user by email and password. Returns user object (with firstname) or null.
+ * Email comparison is case-insensitive.
  */
 export function findUser(email, password, filePath = getUsersPath()) {
   const users = readUsers(filePath);
-  return users.find((u) => u.email === email && u.password === password) || null;
+  const emailLower = (email || '').toLowerCase();
+  return users.find((u) => (u.email || '').toLowerCase() === emailLower && u.password === password) || null;
 }

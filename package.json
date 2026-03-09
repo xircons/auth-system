@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node server/index.js",
+    "dev:all": "concurrently -n vite,api \"npm run dev\" \"npm run dev:server\"",
+    "kill:api": "lsof -ti :3001 | xargs kill -9 2>/dev/null || true",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "dev:server": "node server/index.js",
     "test": "vitest",
     "test:ui": "vitest --ui"
   },
@@ -26,6 +28,7 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "@vitest/ui": "^4.0.18",
+    "concurrently": "^9.2.1",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
