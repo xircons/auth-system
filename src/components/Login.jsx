@@ -11,7 +11,7 @@ function Login({ onLogin, onSwitchToRegister }) {
   const [submitted, setSubmitted] = useState(false);
 
   // Demo correct password
-  // const CORRECT_PASSWORD = 'password123';
+  const CORRECT_PASSWORD = 'password123';
 
   // Validation functions
   const validateEmail = (email) => {
