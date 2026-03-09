@@ -18,6 +18,9 @@ function Register({ onRegister, onSwitchToLogin }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   // Validation functions
   const validateName = (name, fieldName) => {
@@ -122,22 +125,22 @@ function Register({ onRegister, onSwitchToLogin }) {
     else setConfirmPasswordError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
-    
+
     const firstnameValidation = validateName(firstname, 'First name');
     const lastnameValidation = validateName(lastname, 'Last name');
     const emailValidation = validateEmail(email);
     const passwordValidation = validatePassword(password);
     const confirmPasswordValidation = validateConfirmPassword(confirmPassword, password);
-    
+
     setFirstnameError(firstnameValidation);
     setLastnameError(lastnameValidation);
     setEmailError(emailValidation);
     setPasswordError(passwordValidation);
     setConfirmPasswordError(confirmPasswordValidation);
-    
+
     // Show general error only if all fields are missing
     if (!firstname && !lastname && !email && !password && !confirmPassword) {
       setError('All fields are required');
@@ -147,13 +150,34 @@ function Register({ onRegister, onSwitchToLogin }) {
       setError('');
       setShowError(false);
     }
-    
+
     // If any field has an error, do not submit (but don't show general error)
     if (firstnameValidation || lastnameValidation || emailValidation || passwordValidation || confirmPasswordValidation) {
       return;
     }
-    
-    onRegister(firstname, email);
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, firstname, lastname }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        onRegister(firstname, email);
+      } else if (res.status === 409) {
+        setEmailError(data.error || 'Email already registered');
+      } else {
+        setError(data.error || 'Something went wrong. Please try again.');
+        setShowError(true);
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -263,7 +287,7 @@ function Register({ onRegister, onSwitchToLogin }) {
               {submitted && confirmPasswordError && <div className="field-error">{confirmPasswordError}</div>}
             </div>
             {showError && <div className="error-message slide-out">{error}</div>}
-            <button type="submit">Sign Up</button>
+            <button type="submit" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</button>
           </form>
           <div className="login-link">
             <a href="#" onClick={(e) => {

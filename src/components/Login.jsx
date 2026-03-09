@@ -9,9 +9,9 @@ function Login({ onLogin, onSwitchToRegister }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Demo correct password
-  const CORRECT_PASSWORD = 'password123';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   // Validation functions
   const validateEmail = (email) => {
@@ -50,16 +50,12 @@ function Login({ onLogin, onSwitchToRegister }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
     const emailValidation = validateEmail(username);
-    let passwordValidation = validatePassword(password);
-    
-    if (password && password !== CORRECT_PASSWORD) {
-      passwordValidation = 'The password you entered is incorrect';
-    }
-    
+    const passwordValidation = validatePassword(password);
+
     setEmailError(emailValidation);
     setPasswordError(passwordValidation);
 
@@ -76,7 +72,24 @@ function Login({ onLogin, onSwitchToRegister }) {
       return;
     }
 
-    onLogin(username);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        onLogin(data.user ?? username);
+      } else {
+        setPasswordError(data.error || 'The password you entered is incorrect');
+      }
+    } catch {
+      setPasswordError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -142,7 +155,7 @@ function Login({ onLogin, onSwitchToRegister }) {
               <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
             </div>
             {showError && <div className="error-message slide-out">{error}</div>}
-            <button type="submit">Sign In</button>
+            <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
           </form>
           <div className="divider">
             <span>Or</span>

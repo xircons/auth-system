@@ -7,9 +7,16 @@
 
 # testing
 /coverage
+**/*.test.js
+**/*.test.jsx
+**/*.spec.js
+**/*.spec.jsx
 
 # production
 /build
+
+# auth data (keep data/ via .gitkeep)
+/data/users.txt
 
 # misc
 .DS_Store
